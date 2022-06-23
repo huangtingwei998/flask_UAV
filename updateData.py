@@ -95,11 +95,13 @@ def updata():
 
         if len(dataCenter.shake_amplitude_list)>20:
             dataCenter.shake_amplitude_list.pop(0)
-
+        """
+        震荡幅度的计算
+        """
         all_accel = numpy.square(dataCenter.xaccel_data) + numpy.square(dataCenter.yaccel_data) + numpy.square(dataCenter.zaccel_data)
         all_gyro = numpy.square(dataCenter.xgyro_data) + numpy.square(dataCenter.xgyro_data) + numpy.square(dataCenter.xgyro_data)
         all_attitude = numpy.square(vehicle.attitude.yaw) + numpy.square(vehicle.attitude.roll) + numpy.square(vehicle.attitude.pitch)
-        dataCenter.shake_amplitude_list.append(math.sqrt(all_accel) + math.sqrt(all_gyro))
+        dataCenter.shake_amplitude_list.append(math.sqrt(all_accel) + math.sqrt(all_gyro) + math.sqrt(all_attitude))
 
     except BaseException:
         dataCenter.connectstate = False
