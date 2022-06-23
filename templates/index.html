@@ -1,0 +1,291 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>index</title>
+		<script type="text/javascript" src="/static/js/jquery.js"></script>
+		<script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="/static/js/echarts.min.js"></script>
+		<script type="text/javascript" src="/static/js/js.js"></script>
+		<script>
+			$(document).ready(function() {
+				var whei = $(window).width()
+				$("html").css({
+					fontSize: whei / 20
+				})
+				$(window).resize(function() {
+					var whei = $(window).width()
+					$("html").css({
+						fontSize: whei / 20
+					})
+				});
+			});
+		</script>
+		<style>
+			body,
+			html,
+			#container {
+				overflow: hidden;
+				width: 100%;
+				height: 100%;
+				margin: 0;
+				font-family: "微软雅黑";
+			}
+		</style>
+		<script src="//api.map.baidu.com/api?type=webgl&v=1.0&ak=ki3jGBtNuafVtk2mFXxIiLLUBC6X2k4k"></script>
+		<link rel="stylesheet" href="/static/css/bootstrap.min.css">
+		<link rel="stylesheet" href="/static/css/comon2.css">
+	</head>
+	<body>
+		<div class="head">
+			<h1>无人机智能检测系统</h1>
+		</div>
+		<div class="mainbox">
+			<ul class="clearfix">
+				<li style="padding-top:.2rem">
+					<div class="boxall" style="height:calc(61% - .25rem)">
+						<div class="tit01">仪表盘数据</div>
+						<div class="echart_list">
+							<ul>
+								<li>
+									<div id="echart1"></div>
+									<h4>
+										<p>x方向速度</p><em>5m/s</em>
+									</h4>
+								</li>
+								<li>
+									<div id="echart2"></div>
+									<h4>
+										<p>x方向角速度</p><em>5m/s</em>
+									</h4>
+								</li>
+								<li>
+									<div id="echart3"></div>
+									<h4>
+										<p>y方向速度</p><em>5m/s</em>
+									</h4>
+								</li>
+								<li>
+									<div id="echart4"></div>
+									<h4>
+										<p>y方向角速度</p><em>5m/s</em>
+									</h4>
+								</li>
+								<li>
+									<div id="echart5"></div>
+									<h4>
+										<p>z方向速度</p><em>5m/s</em>
+									</h4>
+								</li>
+								<li>
+									<div id="echart6"></div>
+									<h4>
+										<p>z方向角速度</p><em>5m/s</em>
+									</h4>
+								</li>
+								<li>
+									<div id="echart7"></div>
+									<h4>
+										<p>总的速度</p><em>5m/s</em>
+									</h4>
+								</li>
+								<li>
+									<div id="echart9"></div>
+									<h4>
+										<p>空速</p><em>5m/s</em>
+									</h4>
+								</li>
+								<li>
+									<div id="echart10"></div>
+									<h4>
+										<p>地速</p><em>5m/s</em>
+									</h4>
+								</li>
+								<li>
+									<div id="echart8"></div>
+									<h4>
+										<p>航向</p><em>360度</em>
+									</h4>
+								</li>
+
+							</ul>
+						</div>
+
+						<div class="boxfoot"></div>
+					</div>
+					<div class="boxall" style="height:calc(30% - .25rem)">
+						<div class="tit01">日志输出</div>
+						<div class="date_list boxnav nav01">
+							<ol>
+								<li>
+									<p><span>日志等级</span>日期</p>
+								</li>
+
+							</ol>
+							<div class="scrollDiv1" style="height:70%; overflow:hidden;">
+								<ul>
+									<li>
+										<p><a class="text-green" href="#" data-toggle="modal"
+												data-target="#myModal-add">普通通知</a>2022.04.26 14:28:12</p>
+									</li>
+									<li>
+										<p><a class="text-yellow" href="#" data-toggle="modal"
+												data-target="#myModal-add">警告</a>2022.04.26 14:28:12</p>
+									</li>
+									<li>
+										<p><a class="text-red" href="#" data-toggle="modal"
+												data-target="#myModal-add">严重错误</a>2022.04.26 14:28:12</p>
+									</li>
+									<li>
+										<p><a class="text-green" href="#" data-toggle="modal"
+												data-target="#myModal-add">普通通知</a>2022.04.26 14:28:12</p>
+									</li>
+									<li>
+										<p><a class="text-yellow" href="#" data-toggle="modal"
+												data-target="#myModal-add">警告</a>2022.04.26 14:28:12</p>
+									</li>
+									<li>
+										<p><a class="text-red" href="#" data-toggle="modal"
+												data-target="#myModal-add">严重错误</a>2022.04.26 14:28:12</p>
+									</li>
+									<li>
+										<p><a class="text-green" href="#" data-toggle="modal"
+												data-target="#myModal-add">普通通知</a>2022.04.26 14:28:12</p>
+									</li>
+									<li>
+										<p><a class="text-yellow" href="#" data-toggle="modal"
+												data-target="#myModal-add">警告</a>2022.04.26 14:28:12</p>
+									</li>
+									<li>
+										<p><a class="text-red" href="#" data-toggle="modal"
+												data-target="#myModal-add">严重错误</a>2022.04.26 14:28:12</p>
+									</li>
+
+								</ul>
+							</div>
+						</div>
+						<div class="height_list">
+							<h4>高度数据</h4>
+                            <div id="echart14" style="width:100px; height:200px; margin-left:20px;"></div>
+							<!--<ul>
+								<li>3m</li>
+                          <li>2m</li>
+                          <li>1m</li>
+                          <li>0m</li>
+								<p style="bottom:50%">1.5m</p>
+							</ul>-->
+						</div>
+						<!--<div id="echart11" style="width:100px; height:240px;"></div>-->
+						<div class="boxfoot"></div>
+					</div>
+
+				</li>
+				<li style="padding-top:.2rem">
+					<div class="boxall" style=" padding:.08rem;height:calc(61% - .25rem)">
+						<!--这一块显示图像-->
+						<div class="vedio_box boxnav nav01" style="height: calc(100% - .1rem);">
+							<div class="vedio">
+<!--								<img src="/video_start" style="width:100%; height:100%;padding:0 5px;">-->
+
+							</div>
+						</div>
+					</div>
+					<div class="boxall" style="height:calc(30% - .25rem)">
+<!--				     这一块显示地图-->
+						<div id="container"></div>
+						<div class="boxfoot"></div>
+					</div>
+
+				</li>
+				<li style="padding-top:.2rem">
+					<div class="boxall" style="height:calc(30% - .25rem)">
+						<div class="tit01">姿态数据</div>
+
+						<div id="echart11" style="height:45%; width:100%"></div>
+						<div id="echart12" style="height:45%; width:100%"></div>
+						<div class="boxfoot"></div>
+					</div>
+					<div class="boxall" style="height:calc(61% - .25rem)">
+						<div class="tit01">健康管理数据</div>
+
+						<h4 class="jk_title">机身平稳性</h4>
+						<div id="echart13" style="height:28%;"></div>
+						<h4 class="jk_title">连接情况</h4>
+						<div class="link_list boxnav nav01" style="height:20%;">
+							<ul>
+								<li><span>ping响应时间：</span>5s</li>
+								<li><span>超时报警：</span>0.5s</li>
+								<li><span>是否ping通：</span>5s</li>
+								<li><span>ping响应时间：</span>5s</li>
+							</ul>
+						</div>
+						<h4 class="jk_title">电池情况<span style=" margin-left:20px;"><img src="../static/images/warning.gif"></span></h4>
+						<div class="dianchi_list">
+							<ol>
+								<li>
+									<p style="width:80%;"></p>
+								</li><span></span>
+							</ol>
+							<ul>
+								<li><span>电池电压：</span>10V</li>
+								<li><span>当前电流大小：</span>0.5A</li>
+								<li><span>剩余电量：</span>80%</li>
+							</ul>
+						</div>
+
+						<div class="boxfoot"></div>
+					</div>
+
+				</li>
+			</ul>
+		</div>
+		<!--弹窗1-->
+		<div class="modal inmodal" id="myModal-add" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal-dialog " style="height: 500px; width: 720px; margin-top:12%;" role="document">
+				<div class="modal-content ">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">×</span><span class="sr-only">关闭</span>
+						</button>
+						<h4 class="modal-title notice_title" id="exampleModalLabel">标题标题</h4>
+					</div>
+
+					<div class="modal-body" style="background: none;">
+						<p class="notice_content">代替文字代替文字代替文字...</p>
+					</div>
+					<div class="modal-footer" style="border-top: #9567da 1px solid;">
+						<!--<button type="button" class="btn btn-lg btn-primary" data-dismiss="modal">关闭</button>-->
+						<button type="button" class="btn btn-lg btn-success" data-dismiss="modal">确定</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="../static/js/jquery.liMarquee.js"></script>
+		<script>
+			$(function() {
+				$('.scrollDiv1').liMarquee({
+					direction: 'up',
+					scrollamount: 30,
+					runshort: false
+				});
+			});
+		</script>
+	</body>
+</html>
+
+
+<script type="text/javascript">
+	var map = new BMapGL.Map('container');
+	var point = new BMapGL.Point(116.404, 39.915);
+	map.centerAndZoom(point, 18);
+	// 创建小车图标
+	var myIcon = new BMapGL.Icon("static/images/tongji.png", new BMapGL.Size(52, 26));
+	// 创建Marker标注，使用小车图标
+	var pt = new BMapGL.Point(116.417, 39.909);
+	var marker = new BMapGL.Marker(pt, {
+		icon: myIcon
+	});
+	// 将标注添加到地图
+	map.addOverlay(marker);
+</script>
