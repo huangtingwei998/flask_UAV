@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>index</title>
+		<title>无人机智能监测系统-浙江大学</title>
 		<script type="text/javascript" src="/static/js/jquery.js"></script>
 		<script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
 		<script type="text/javascript" src="/static/js/echarts.min.js"></script>
@@ -38,7 +38,7 @@
 	</head>
 	<body>
 		<div class="head">
-			<h1>无人机智能检测系统</h1>
+			<h1>无人机智能监测系统</h1>
 		</div>
 		<div class="mainbox">
 			<ul class="clearfix">
@@ -50,61 +50,61 @@
 								<li>
 									<div id="echart1"></div>
 									<h4>
-										<p>x方向速度</p><em>5m/s</em>
+										<p>x方向速度</p><em><span id="xvelocity"></span>m/s</em>
 									</h4>
 								</li>
 								<li>
 									<div id="echart2"></div>
 									<h4>
-										<p>x方向角速度</p><em>5m/s</em>
+										<p>x方向偏移角</p><em><span id="yaw"></span>度</em>
 									</h4>
 								</li>
 								<li>
 									<div id="echart3"></div>
 									<h4>
-										<p>y方向速度</p><em>5m/s</em>
+										<p>y方向速度</p><em><span id="yvelocity"></span>m/s</em>
 									</h4>
 								</li>
 								<li>
 									<div id="echart4"></div>
 									<h4>
-										<p>y方向角速度</p><em>5m/s</em>
+										<p>y方向偏移角</p><em><span id="roll"></span>度</em>
 									</h4>
 								</li>
 								<li>
 									<div id="echart5"></div>
 									<h4>
-										<p>z方向速度</p><em>5m/s</em>
+										<p>z方向速度</p><em><span id="zvelocity"></span>m/s</em>
 									</h4>
 								</li>
 								<li>
 									<div id="echart6"></div>
 									<h4>
-										<p>z方向角速度</p><em>5m/s</em>
+										<p>z方向偏移角</p><em><span id="pitch"></span>度</em>
 									</h4>
 								</li>
 								<li>
 									<div id="echart7"></div>
 									<h4>
-										<p>总的速度</p><em>5m/s</em>
+										<p>总的速度</p><em><span id="allSpeed"></span>m/s</em>
 									</h4>
 								</li>
 								<li>
 									<div id="echart9"></div>
 									<h4>
-										<p>空速</p><em>5m/s</em>
+										<p>空速</p><em><span id="airspeed"></span>m/s</em>
 									</h4>
 								</li>
 								<li>
 									<div id="echart10"></div>
 									<h4>
-										<p>地速</p><em>5m/s</em>
+										<p>地速</p><em><span id="groundspeed"></span>m/s</em>
 									</h4>
 								</li>
 								<li>
 									<div id="echart8"></div>
 									<h4>
-										<p>航向</p><em>360度</em>
+										<p>航向</p><em><span id="heading"></span>度</em>
 									</h4>
 								</li>
 
@@ -118,49 +118,13 @@
 						<div class="date_list boxnav nav01">
 							<ol>
 								<li>
-									<p><span>日志等级</span>日期</p>
+									<p><span>日志</span>时间</p>
 								</li>
 
 							</ol>
 							<div class="scrollDiv1" style="height:70%; overflow:hidden;">
-								<ul>
-									<li>
-										<p><a class="text-green" href="#" data-toggle="modal"
-												data-target="#myModal-add">普通通知</a>2022.04.26 14:28:12</p>
-									</li>
-									<li>
-										<p><a class="text-yellow" href="#" data-toggle="modal"
-												data-target="#myModal-add">警告</a>2022.04.26 14:28:12</p>
-									</li>
-									<li>
-										<p><a class="text-red" href="#" data-toggle="modal"
-												data-target="#myModal-add">严重错误</a>2022.04.26 14:28:12</p>
-									</li>
-									<li>
-										<p><a class="text-green" href="#" data-toggle="modal"
-												data-target="#myModal-add">普通通知</a>2022.04.26 14:28:12</p>
-									</li>
-									<li>
-										<p><a class="text-yellow" href="#" data-toggle="modal"
-												data-target="#myModal-add">警告</a>2022.04.26 14:28:12</p>
-									</li>
-									<li>
-										<p><a class="text-red" href="#" data-toggle="modal"
-												data-target="#myModal-add">严重错误</a>2022.04.26 14:28:12</p>
-									</li>
-									<li>
-										<p><a class="text-green" href="#" data-toggle="modal"
-												data-target="#myModal-add">普通通知</a>2022.04.26 14:28:12</p>
-									</li>
-									<li>
-										<p><a class="text-yellow" href="#" data-toggle="modal"
-												data-target="#myModal-add">警告</a>2022.04.26 14:28:12</p>
-									</li>
-									<li>
-										<p><a class="text-red" href="#" data-toggle="modal"
-												data-target="#myModal-add">严重错误</a>2022.04.26 14:28:12</p>
-									</li>
-
+								<ul id="log_win">
+<!--									日志的打印窗口-->
 								</ul>
 							</div>
 						</div>
@@ -185,14 +149,16 @@
 						<!--这一块显示图像-->
 						<div class="vedio_box boxnav nav01" style="height: calc(100% - .1rem);">
 							<div class="vedio">
-<!--								<img src="/video_start" style="width:100%; height:100%;padding:0 5px;">-->
+								<img src="/video_start" style="width:100%; height:100%;padding:0 5px;">
 
 							</div>
 						</div>
 					</div>
 					<div class="boxall" style="height:calc(30% - .25rem)">
 <!--				     这一块显示地图-->
-						<div id="container"></div>
+						<div id="container">
+							<img src="static/images/img.png">
+						</div>
 						<div class="boxfoot"></div>
 					</div>
 
@@ -208,28 +174,27 @@
 					<div class="boxall" style="height:calc(61% - .25rem)">
 						<div class="tit01">健康管理数据</div>
 
-						<h4 class="jk_title">机身平稳性</h4>
-						<div id="echart13" style="height:28%;"></div>
-						<h4 class="jk_title">连接情况</h4>
-						<div class="link_list boxnav nav01" style="height:20%;">
-							<ul>
-								<li><span>ping响应时间：</span>5s</li>
-								<li><span>超时报警：</span>0.5s</li>
-								<li><span>是否ping通：</span>5s</li>
-								<li><span>ping响应时间：</span>5s</li>
-							</ul>
+						<h4 class="jk_title" id="h4_shake">机身平稳性<span id="shake_state"></span></h4>
+						<div id="echart13" style="height:25%;"></div>
+						<h4 class="jk_title">连接情况(单位:s)   <span id="connect_state"></span></h4>
+						<div id="echarts_connect_time" style="height:20%;">
 						</div>
-						<h4 class="jk_title">电池情况<span style=" margin-left:20px;"><img src="../static/images/warning.gif"></span></h4>
-						<div class="dianchi_list">
+						<h4 class="jk_title">电池情况 <span id="battery_state"></span></h4>
+						<div class="dianchi_list" style="background: red">
 							<ol>
 								<li>
-									<p style="width:80%;"></p>
+									<p id="battery_level" style="background: red"></p>
 								</li><span></span>
+
 							</ol>
 							<ul>
-								<li><span>电池电压：</span>10V</li>
-								<li><span>当前电流大小：</span>0.5A</li>
-								<li><span>剩余电量：</span>80%</li>
+<!--								<li>电池电压：<span id = "voltage"></span>V</li>-->
+<!--								<li>当前电流大小：<span id = "current"></span>A</li>-->
+<!--								<li>剩余电量：<span id = "level"></span>%</li>-->
+								<li><span id="voltage"></span>V</li>
+								<li><span id="current"></span>A</li>
+								<li><span id="level"></span>%</li>
+<!--								<li><span id="time_left"></span>6min25s</li>-->
 							</ul>
 						</div>
 

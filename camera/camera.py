@@ -4,8 +4,8 @@ from utils.utils import *
 
 
 class Camera(BaseCamera):
-    # video_source = 'test.mp4'
-    video_source =0
+    video_source = 'output.mp4'
+    # video_source ='http://192.168.1.199:8085/?action=stream'
     def __init__(self):
         if os.environ.get('OPENCV_CAMERA_SOURCE'):
             Camera.set_video_source(int(os.environ['OPENCV_CAMERA_SOURCE']))
@@ -19,7 +19,8 @@ class Camera(BaseCamera):
     def frames():
         out, weights, imgsz = \
         'inference/output', 'weights/yolov5s.pt', 640
-        source = "test.mp4"
+        source = 'output.mp4'
+        # source = 'http://192.168.1.199:8085/?action=stream'
         device = torch_utils.select_device()
         if os.path.exists(out):
             shutil.rmtree(out)  # delete output folder
@@ -49,7 +50,8 @@ class Camera(BaseCamera):
         # Set Dataloader
         vid_path, vid_writer = None, None
         dataset = LoadImages(source, img_size=imgsz)
-        #dataset = LoadStreams(source, img_size=imgsz)
+        # dataset = LoadStreams(source, img_size=imgsz)
+        # dataset = LoadWebcam(source, img_size=imgsz)
         names = model.names if hasattr(model, 'names') else model.modules.names
         colors = [[random.randint(0, 255) for _ in range(3)] for _ in range(len(names))]
 

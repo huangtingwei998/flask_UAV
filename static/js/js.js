@@ -14,8 +14,9 @@ $(document).ready(function(){
 	 $("html").css({fontSize:whei/20})
 });
 	});
-
+ //设置总的定时器，0.5秒调用一下后端
  $(function () {
+   connect_state();
    echarts_1();
    echarts_2();
    echarts_3();
@@ -30,7 +31,15 @@ $(document).ready(function(){
    echarts_12();
    echarts_13();
    echarts_14();
-   setInterval(function() {
+   voltage();
+   current();
+   level();
+   echarts_connect_time();
+   log_util();
+   time_left();
+   // connect_GPS();
+   var timer1 = setInterval(function() {
+        connect_state();
         echarts_1();
         echarts_2();
         echarts_3();
@@ -41,10 +50,26 @@ $(document).ready(function(){
         echarts_8();
         echarts_9();
         echarts_10();
+        echarts_11();
+        echarts_12();
+        echarts_13();
         echarts_14();
+        voltage();
+        current();
+        level();
+        echarts_connect_time();
+        log_util();
+        time_left();
     }, 500);
+   // var timer2 = setInterval(function() {
+   //      connect_GPS();
+   //  }, 10000);
  });
- function echarts_1() {
+
+/**
+ * 下面有14个图表，对应仪表盘，曲线等
+ */
+function echarts_1() {
         // 基于准备好的dom，初始化echarts实例
         var myChart = echarts.init(document.getElementById('echart1'));
         $.ajax({
@@ -53,6 +78,7 @@ $(document).ready(function(){
           dataType: "json",
            success: function (res) {
             xdata = res['xvelocity']
+             $('#xvelocity').text(res['xvelocity'])
               option = {
                         series: [
                           {
@@ -124,10 +150,11 @@ $(document).ready(function(){
  		var myChart = echarts.init(document.getElementById('echart2'));
          $.ajax({
           type: "GET",
-          url:"mpu6050/mpu_gyro_xdata", //后端请求
+          url:"attitude/yaw", //后端请求
           dataType: "json",
            success: function (res) {
-             xdata = res['mpu_gyro_xdata']
+             xdata = res['yaw']
+             $('#yaw').text(xdata)
              option = {
                 series: [
                   {
@@ -208,6 +235,7 @@ function echarts_3() {
           dataType: "json",
           success: function (res) {
             ydata = res['yvelocity'];
+            $('#yvelocity').text(res['yvelocity'])
             option = {
               series: [
                 {
@@ -280,10 +308,11 @@ function echarts_3() {
         var myChart = echarts.init(document.getElementById('echart4'));
         $.ajax({
           type: "GET",
-          url: "mpu6050/mpu_gyro_ydata", //后端请求
+          url: "attitude/roll", //后端请求
           dataType: "json",
           success: function (res) {
-            ydata = res['mpu_gyro_ydata'];
+            ydata = res['roll'];
+            $('#roll').text(res['roll'])
             option = {
               series: [
                 {
@@ -350,7 +379,7 @@ function echarts_3() {
         //     myChart.resize();
         // });
     }
-	
+
 
 
 
@@ -364,6 +393,7 @@ $.ajax({
   dataType: "json",
   success: function (res) {
     zdata = res['zvelocity'];
+    $('#zvelocity').text(res['zvelocity'])
     option = {
         series: [
           {
@@ -429,16 +459,17 @@ $.ajax({
     //     myChart.resize();
     // });
 }
-	
+
 function echarts_6() {
         // 基于准备好的dom，初始化echarts实例
         var myChart = echarts.init(document.getElementById('echart6'));
         $.ajax({
           type: "GET",
-          url: "mpu6050/mpu_gyro_zdata", //后端请求
+          url: "attitude/pitch", //后端请求
           dataType: "json",
           success: function (res) {
-            zdata = res['mpu_gyro_zdata'];
+            zdata = res['pitch'];
+            $('#pitch').text(res['pitch'])
             option = {
                 series: [
                   {
@@ -505,8 +536,8 @@ function echarts_6() {
         //     myChart.resize();
         // });
     }
-	
-	
+
+
 function echarts_7() {
         // 基于准备好的dom，初始化echarts实例
         var myChart = echarts.init(document.getElementById('echart7'));
@@ -516,6 +547,7 @@ function echarts_7() {
           dataType: "json",
           success: function (res) {
             alldata = res['allSpeed'];
+            $('#allSpeed').text(res['allSpeed'])
             option = {
               series: [
                 {
@@ -743,6 +775,7 @@ function echarts_8() {
     dataType: "json",
     success: function (res) {
       head = res['heading'];
+      $('#heading').text(res['heading'])
       option.series[1].data[0] = head;
       myChart.setOption(option, true);
     }
@@ -776,6 +809,7 @@ function echarts_9() {
           dataType: "json",
           success: function (res) {
             airdata = res['airspeed'];
+            $('#airspeed').text(res['airspeed'])
             option = {
               series: [
                 {
@@ -837,7 +871,7 @@ function echarts_9() {
           }
         });
 
-    }	
+    }
 
 function echarts_10() {
         // 基于准备好的dom，初始化echarts实例
@@ -848,7 +882,7 @@ function echarts_10() {
           dataType: "json",
           success: function (res) {
             grounddata = res['groundspeed'];
-
+            $('#groundspeed').text(res['groundspeed'])
             option = {
               series: [
                 {
@@ -912,433 +946,603 @@ function echarts_10() {
         // 使用刚指定的配置项和数据显示图表。
 
     }
-	
+
 function echarts_11() {
         // 基于准备好的dom，初始化echarts实例
         var myChart = echarts.init(document.getElementById('echart11'));
-option = {
-  //  backgroundColor: '#00265f',
-    tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-            type: 'shadow'
-        }
-    },
-    legend: {
-        data: ['vx', 'vy', 'vz'],
-		top:'5%',
-        textStyle: {
-            color: "#fff",
-		    fontSize: '12',
-
-        },
- 
-        itemGap: 35
-    },
-    grid: {
-        left: '0%',
-		top:'40px',
-        right: '0%',
-        bottom: '0',
-       containLabel: true
-    },
-    xAxis: [{
-        type: 'category',
-      		data: ['10:00', '12:00', '14:00', '16:00', '18:00', '20:00'],
-        axisLine: {
-            show: true,
-         lineStyle: {
-                color: "rgba(255,255,255,.1)",
-                width: 1,
-                type: "solid"
+        $.ajax({
+          type: "GET",
+          url: "line/gyro_line", //后端请求
+          dataType: "json",
+          success: function (res) {
+            gyro_line = res['gyro_line']
+        option = {
+          //  backgroundColor: '#00265f',
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
             },
-        },
-        axisTick: {
-            show: false,
-        },
-		axisLabel:  {
-                interval: 0,
-               // rotate:50,
-                show: true,
-                splitNumber: 5,
+            legend: {
+                data: ['gx', 'gy', 'gz'],
+                top:'5%',
                 textStyle: {
- 					color: "rgba(255,255,255,.6)",
+                    color: "#fff",
                     fontSize: '12',
-                },
-            },
-    }],
-    yAxis: [{
-        type: 'value',
-        axisLabel: {
-           //formatter: '{value} %'
-			show:true,
-			 textStyle: {
- 					color: "rgba(255,255,255,.6)",
-                    fontSize: '12',
-                },
-        },
-        axisTick: {
-            show: false,
-        },
-        axisLine: {
-            show: true,
-            lineStyle: {
-                color: "rgba(255,255,255,.1	)",
-                width: 1,
-                type: "solid"
-            },
-        },
-        splitLine: {
-            lineStyle: {
-               color: "rgba(255,255,255,.1)",
-            }
-        }
-    }],
-    series: [{
-        name: 'vx',
-        type: 'line',
- smooth: true,
-        data: [2, 6, 3, 8, 5, 4],
-        itemStyle: {
-            normal: {
-                color:'#2f89cf',
-                opacity: 1,
-				
-				barBorderRadius: 5,
-            }
-        }
-    }, {
-        name: 'vy',
-        type: 'line',
-		 smooth: true,
-        data: [5, 2, 6, 4, 5, 5],
-		barWidth:'15',
-       // barGap: 1,
-        itemStyle: {
-            normal: {
-                color:'#62c98d',
-                opacity: 1,
-				barBorderRadius: 5,
-            }
-        }
-    },{
-        name: 'vz',
-        type: 'line',
-		 smooth: true,
-        data: [4, 3, 5, 3, 6, 3],
-		barWidth:'15',
-       // barGap: 1,
-        itemStyle: {
-            normal: {
-                color:'#e30ce3',
-                opacity: 1,
-				barBorderRadius: 5,
-            }
-        }
-    },
-	]
-};
 
-        // 使用刚指定的配置项和数据显示图表。
+                },
+
+                itemGap: 35
+            },
+            grid: {
+                left: '0%',
+                top:'40px',
+                right: '0%',
+                bottom: '0',
+               containLabel: true
+            },
+            xAxis: [{
+                type: 'category',
+                    data: ['10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '24:00', '26:00', '28:00'],
+                axisLine: {
+                    show: true,
+                 lineStyle: {
+                        color: "rgba(255,255,255,.1)",
+                        width: 1,
+                        type: "solid"
+                    },
+                },
+                axisTick: {
+                    show: false,
+                },
+                axisLabel:  {
+                        interval: 0,
+                       // rotate:50,
+                        show: true,
+                        splitNumber: 5,
+                        textStyle: {
+                            color: "rgba(255,255,255,.6)",
+                            fontSize: '12',
+                        },
+                    },
+            }],
+            yAxis: [{
+                type: 'value',
+                axisLabel: {
+                   //formatter: '{value} %'
+                    show:true,
+                     textStyle: {
+                            color: "rgba(255,255,255,.6)",
+                            fontSize: '12',
+                        },
+                },
+                axisTick: {
+                    show: false,
+                },
+                axisLine: {
+                    show: true,
+                    lineStyle: {
+                        color: "rgba(255,255,255,.1	)",
+                        width: 1,
+                        type: "solid"
+                    },
+                },
+                splitLine: {
+                    lineStyle: {
+                       color: "rgba(255,255,255,.1)",
+                    }
+                }
+            }],
+            series: [{
+                name: 'gx',
+                type: 'line',
+         smooth: true,
+                data: gyro_line[0],
+                itemStyle: {
+                    normal: {
+                        color:'#2f89cf',
+                        opacity: 1,
+
+                        barBorderRadius: 5,
+                    }
+                }
+            }, {
+                name: 'gy',
+                type: 'line',
+                 smooth: true,
+                data: gyro_line[1],
+                barWidth:'15',
+               // barGap: 1,
+                itemStyle: {
+                    normal: {
+                        color:'#62c98d',
+                        opacity: 1,
+                        barBorderRadius: 5,
+                    }
+                }
+            },{
+                name: 'gz',
+                type: 'line',
+                 smooth: true,
+                data: gyro_line[2],
+                barWidth:'15',
+               // barGap: 1,
+                itemStyle: {
+                    normal: {
+                        color:'#e30ce3',
+                        opacity: 1,
+                        barBorderRadius: 5,
+                    }
+                }
+            },
+            ]
+        };
         myChart.setOption(option);
-        window.addEventListener("resize",function(){
-            myChart.resize();
+          }
         });
     }
-	
+
 function echarts_12() {
         // 基于准备好的dom，初始化echarts实例
         var myChart = echarts.init(document.getElementById('echart12'));
-option = {
-  //  backgroundColor: '#00265f',
-    tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-            type: 'shadow'
-        }
-    },
-    legend: {
-        data: ['ax', 'ay', 'az'],
-		top:'5%',
-        textStyle: {
-            color: "#fff",
-		    fontSize: '12',
-
-        },
- 
-        itemGap: 35
-    },
-    grid: {
-        left: '0%',
-		top:'40px',
-        right: '0%',
-        bottom: '0',
-       containLabel: true
-    },
-    xAxis: [{
-        type: 'category',
-      		data: ['10:00', '12:00', '14:00', '16:00', '18:00', '20:00'],
-        axisLine: {
-            show: true,
-         lineStyle: {
-                color: "rgba(255,255,255,.1)",
-                width: 1,
-                type: "solid"
+        $.ajax({
+          type: "GET",
+          url: "line/accel_line", //后端请求
+          dataType: "json",
+          success: function (res) {
+            accel_line = res['accel_line']
+        option = {
+          //  backgroundColor: '#00265f',
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
             },
-        },
-        axisTick: {
-            show: false,
-        },
-		axisLabel:  {
-                interval: 0,
-               // rotate:50,
-                show: true,
-                splitNumber: 5,
+            legend: {
+                data: ['ax', 'ay', 'az'],
+                top:'5%',
                 textStyle: {
- 					color: "rgba(255,255,255,.6)",
+                    color: "#fff",
                     fontSize: '12',
+
                 },
+
+                itemGap: 35
             },
-    }],
-    yAxis: [{
-        type: 'value',
-        axisLabel: {
-           //formatter: '{value} %'
-			show:true,
-			 textStyle: {
- 					color: "rgba(255,255,255,.6)",
-                    fontSize: '12',
+            grid: {
+                left: '0%',
+                top:'40px',
+                right: '0%',
+                bottom: '0',
+               containLabel: true
+            },
+            xAxis: [{
+                type: 'category',
+                    data: ['10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '24:00', '26:00', '28:00'],
+                axisLine: {
+                    show: true,
+                 lineStyle: {
+                        color: "rgba(255,255,255,.1)",
+                        width: 1,
+                        type: "solid"
+                    },
                 },
-        },
-        axisTick: {
-            show: false,
-        },
-        axisLine: {
-            show: true,
-            lineStyle: {
-                color: "rgba(255,255,255,.1	)",
-                width: 1,
-                type: "solid"
+                axisTick: {
+                    show: false,
+                },
+                axisLabel:  {
+                        interval: 0,
+                       // rotate:50,
+                        show: true,
+                        splitNumber: 5,
+                        textStyle: {
+                            color: "rgba(255,255,255,.6)",
+                            fontSize: '12',
+                        },
+                    },
+            }],
+            yAxis: [{
+                type: 'value',
+                axisLabel: {
+                   //formatter: '{value} %'
+                    show:true,
+                     textStyle: {
+                            color: "rgba(255,255,255,.6)",
+                            fontSize: '12',
+                        },
+                },
+                axisTick: {
+                    show: false,
+                },
+                axisLine: {
+                    show: true,
+                    lineStyle: {
+                        color: "rgba(255,255,255,.1	)",
+                        width: 1,
+                        type: "solid"
+                    },
+                },
+                splitLine: {
+                    lineStyle: {
+                       color: "rgba(255,255,255,.1)",
+                    }
+                }
+            }],
+            series: [{
+                name: 'ax',
+                type: 'line',
+         smooth: true,
+                data: accel_line[0],
+                itemStyle: {
+                    normal: {
+                        color:'#2f89cf',
+                        opacity: 1,
+
+                        barBorderRadius: 5,
+                    }
+                }
+            }, {
+                name: 'ay',
+                type: 'line',
+                 smooth: true,
+                data: accel_line[1],
+                barWidth:'10',
+               // barGap: 1,
+                itemStyle: {
+                    normal: {
+                        color:'#62c98d',
+                        opacity: 1,
+                        barBorderRadius: 5,
+                    }
+                }
+            },{
+                name: 'az',
+                type: 'line',
+                 smooth: true,
+                data: accel_line[2],
+                barWidth:'10',
+               // barGap: 1,
+                itemStyle: {
+                    normal: {
+                        color:'#e30ce3',
+                        opacity: 1,
+                        barBorderRadius: 5,
+                    }
+                }
             },
-        },
-        splitLine: {
-            lineStyle: {
-               color: "rgba(255,255,255,.1)",
-            }
-        }
-    }],
-    series: [{
-        name: 'ax',
-        type: 'line',
- smooth: true,
-        data: [2, 6, 3, 8, 5, 3],
-		
-        itemStyle: {
-            normal: {
-                color:'#2f89cf',
-                opacity: 1,
-				
-				barBorderRadius: 5,
-            }
-        }
-    }, {
-        name: 'ay',
-        type: 'line',
-		 smooth: true,
-        data: [5, 2, 6, 4, 5, 4],
-		barWidth:'10',
-       // barGap: 1,
-        itemStyle: {
-            normal: {
-                color:'#62c98d',
-                opacity: 1,
-				barBorderRadius: 5,
-            }
-        }
-    },{
-        name: 'az',
-        type: 'line',
-		 smooth: true,
-        data: [4, 3, 5, 3, 6, 5],
-		barWidth:'10',
-       // barGap: 1,
-        itemStyle: {
-            normal: {
-                color:'#e30ce3',
-                opacity: 1,
-				barBorderRadius: 5,
-            }
-        }
-    },
-	]
-};
+            ]
+        };
 
         // 使用刚指定的配置项和数据显示图表。
         myChart.setOption(option);
-        window.addEventListener("resize",function(){
-            myChart.resize();
+          }
         });
     }
-	
+
 function echarts_13() {
         // 基于准备好的dom，初始化echarts实例
         var myChart = echarts.init(document.getElementById('echart13'));
- option = {
-  title: {
-/*    text: "总数变化图",
-*/    textStyle: {
-      fontSize: 25,
-      fontWeight: "normal",
-      color: "#fff",
-    },
-    x: "center",
-  },
- 
-  tooltip: {},
-  grid: {
-    top: "8%",
-    left: "1%",
-    right: "1%",
-    bottom: "8%",
-    containLabel: true,
-  },
-  legend: {
-    itemGap: 100,
-    data: ["机身平稳性"],
-    textStyle: {
-      color: "#f9f9f9",
-      borderColor: "#fff",
-    },
-  },
-  xAxis: [
-    {
-      type: "category",
-      boundaryGap: true,
-      axisLine: {
-        //坐标轴轴线相关设置。数学上的x轴
-        show: true,
-        lineStyle: {
-          color: "#203861",
-        },
-      },
-      axisLabel: {
-        //坐标轴刻度标签的相关设置
-        textStyle: {
-          color: "#d1e6eb",
-          margin: 15,
-        },
-      },
-      axisTick: {
-        show: false,
-      },
-      data: [
-        "12:00",
-        "14:00",
-        "16:00",
-        "18:00",
-        "20:00",
-        "22:00",
-      ],
-    },
-  ],
-  yAxis: [
-    {
-      type: "value",
-      min: 0,
-      // max: 140,
-      splitNumber: 7,
-      splitLine: {
-        show: true,
-        lineStyle: {
-          color: "#0a3256",
-        },
-      },
-      axisLine: {
-        show: false,
-      },
-      axisLabel: {
-        margin: 20,
-        textStyle: {
-          color: "#999",
-        },
-      },
-      axisTick: {
-        show: false,
-      },
-    },
-  ],
-  series: [
-    {
-      name: "注册总量",
-      type: "line",
-      smooth: true, //是否平滑曲线显示
-      // 			symbol:'circle',  // 默认是空心圆（中间是白色的），改成实心圆
-      showAllSymbol: true,
-      symbol: "emptyCircle",
-      symbolSize: 6,
-      lineStyle: {
-        normal: {
-          color: "#2897ff", // 线条颜色
-        },
-        borderColor: "#2897ff",
-      },
-      label: {
-        show: true,
-        position: "top",
-        textStyle: {
-          color: "#fff",
-        },
-      },
-      itemStyle: {
-        normal: {
-          color: "#2897ff",
-        },
-      },
-      tooltip: {
-        show: false,
-      },
-      areaStyle: {
-        //区域填充样式
-        normal: {
-          //线性渐变，前4个参数分别是x0,y0,x2,y2(范围0~1);相当于图形包围盒中的百分比。如果最后一个参数是‘true’，则该四个值是绝对像素位置。
-          color: new echarts.graphic.LinearGradient(
-            0,
-            0,
-            0,
-            1,
-            [
-              {
-                offset: 0,
-                color: "rgba(10,60,240,0.4)",
+        $.ajax({
+          type: "GET",
+          url: "line/shake_amplitude", //后端请求
+          dataType: "json",
+          success: function (res) {
+            shake_amplitude = res['shake_amplitude']
+            var flag = 0;
+            for(var i = 0;i<shake_amplitude.length;i++){
+              if(shake_amplitude[i]>100){
+                flag = 1;
+              }
+            }
+            if(flag===1){
+              shake_change_color();
+              $('#shake_state').text("警告：机身失稳");
+            }else {
+              shake_clear();
+              $('#shake_state').text("");
+            }
+
+         option = {
+          title: {
+        /*    text: "总数变化图",
+        */    textStyle: {
+              fontSize: 25,
+              fontWeight: "normal",
+              color: "#fff",
+            },
+            x: "center",
+          },
+
+          tooltip: {},
+          grid: {
+            top: "8%",
+            left: "1%",
+            right: "1%",
+            bottom: "8%",
+            containLabel: true,
+          },
+          legend: {
+            itemGap: 100,
+            data: ["机身平稳性"],
+            textStyle: {
+              color: "#f9f9f9",
+              borderColor: "#fff",
+            },
+          },
+          xAxis: [
+            {
+              type: "category",
+              boundaryGap: true,
+              axisLine: {
+                //坐标轴轴线相关设置。数学上的x轴
+                show: true,
+                lineStyle: {
+                  color: "#203861",
+                },
               },
-              {
-                offset: 1,
-                color: "rgba(0,0,0, 0)",
+              axisLabel: {
+                //坐标轴刻度标签的相关设置
+                textStyle: {
+                  color: "#d1e6eb",
+                  margin: 15,
+                },
               },
-            ],
-            false
-          ),
-          shadowColor: "rgba(53,142,215, 0.2)", //阴影颜色
-          shadowBlur: 20, //shadowBlur设图形阴影的模糊大小。配合shadowColor,shadowOffsetX/Y, 设置图形的阴影效果。
-        },
-      },
-      data: [100, 220, 310, 260, 70, 230],
-    },
-    
-  ],
-};
+              axisTick: {
+                show: false,
+              },
+              data: ["1", "2", "3", "4", "5", "6","7", "8", "9", "10"],
+            },
+          ],
+          yAxis: [
+            {
+              type: "value",
+              min: 0,
+              // max: 140,
+              splitNumber: 7,
+              splitLine: {
+                show: true,
+                lineStyle: {
+                  color: "#0a3256",
+                },
+              },
+              axisLine: {
+                show: false,
+              },
+              axisLabel: {
+                margin: 20,
+                textStyle: {
+                  color: "#999",
+                },
+              },
+              axisTick: {
+                show: false,
+              },
+            },
+          ],
+          series: [
+            {
+              name: "注册总量",
+              type: "line",
+              smooth: true, //是否平滑曲线显示
+              // 			symbol:'circle',  // 默认是空心圆（中间是白色的），改成实心圆
+              showAllSymbol: true,
+              symbol: "emptyCircle",
+              symbolSize: 6,
+              lineStyle: {
+                normal: {
+                  color: "#2897ff", // 线条颜色
+                },
+                borderColor: "#2897ff",
+              },
+              label: {
+                show: true,
+                position: "top",
+                textStyle: {
+                  color: "#fff",
+                },
+              },
+              itemStyle: {
+                normal: {
+                  color: "#2897ff",
+                },
+              },
+              tooltip: {
+                show: false,
+              },
+              areaStyle: {
+                //区域填充样式
+                normal: {
+                  //线性渐变，前4个参数分别是x0,y0,x2,y2(范围0~1);相当于图形包围盒中的百分比。如果最后一个参数是‘true’，则该四个值是绝对像素位置。
+                  color: new echarts.graphic.LinearGradient(
+                    0,
+                    0,
+                    0,
+                    1,
+                    [
+                      {
+                        offset: 0,
+                        color: "rgba(10,60,240,0.4)",
+                      },
+                      {
+                        offset: 1,
+                        color: "rgba(0,0,0, 0)",
+                      },
+                    ],
+                    false
+                  ),
+                  shadowColor: "rgba(53,142,215, 0.2)", //阴影颜色
+                  shadowBlur: 20, //shadowBlur设图形阴影的模糊大小。配合shadowColor,shadowOffsetX/Y, 设置图形的阴影效果。
+                },
+              },
+              data: shake_amplitude,
+            },
+
+          ],
+        };
 
 
         // 使用刚指定的配置项和数据显示图表。
         myChart.setOption(option);
-        window.addEventListener("resize",function(){
-            myChart.resize();
+          }
         });
-		
-		
-		
-    }	
-	
+    }
+
+    function echarts_connect_time() {
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('echarts_connect_time'));
+        $.ajax({
+          type: "GET",
+          url: "state/time", //后端请求
+          dataType: "json",
+          success: function (res) {
+            time_list = res['time']
+         option = {
+          title: {
+        /*    text: "总数变化图",
+        */    textStyle: {
+              fontSize: 25,
+              fontWeight: "normal",
+              color: "#fff",
+            },
+            x: "center",
+          },
+
+          tooltip: {},
+          grid: {
+            top: "8%",
+            left: "1%",
+            right: "1%",
+            bottom: "8%",
+            containLabel: true,
+          },
+          legend: {
+            itemGap: 100,
+            data: ["连接情况"],
+            textStyle: {
+              color: "#f9f9f9",
+              borderColor: "#fff",
+            },
+          },
+          xAxis: [
+            {
+              type: "category",
+              boundaryGap: true,
+              axisLine: {
+                //坐标轴轴线相关设置。数学上的x轴
+                show: true,
+                lineStyle: {
+                  color: "#203861",
+                },
+              },
+              axisLabel: {
+                //坐标轴刻度标签的相关设置
+                textStyle: {
+                  color: "#d1e6eb",
+                  margin: 15,
+                },
+              },
+              axisTick: {
+                show: false,
+              },
+              data: ["1", "2", "3", "4", "5", "6","7", "8"],
+            },
+          ],
+          yAxis: [
+            {
+              type: "value",
+              min: 0,
+              // max: 140,
+              splitNumber: 7,
+              splitLine: {
+                show: true,
+                lineStyle: {
+                  color: "#0a3256",
+                },
+              },
+              axisLine: {
+                show: false,
+              },
+              axisLabel: {
+                margin: 20,
+                textStyle: {
+                  color: "#999",
+                },
+              },
+              axisTick: {
+                show: false,
+              },
+            },
+          ],
+          series: [
+            {
+              name: "注册总量",
+              type: "line",
+              smooth: true, //是否平滑曲线显示
+              // 			symbol:'circle',  // 默认是空心圆（中间是白色的），改成实心圆
+              showAllSymbol: true,
+              symbol: "emptyCircle",
+              symbolSize: 6,
+              lineStyle: {
+                normal: {
+                  color: "#2897ff", // 线条颜色
+                },
+                borderColor: "#2897ff",
+              },
+              label: {
+                show: true,
+                position: "top",
+                textStyle: {
+                  color: "#fff",
+                },
+              },
+              itemStyle: {
+                normal: {
+                  color: "#2897ff",
+                },
+              },
+              tooltip: {
+                show: false,
+              },
+              areaStyle: {
+                //区域填充样式
+                normal: {
+                  //线性渐变，前4个参数分别是x0,y0,x2,y2(范围0~1);相当于图形包围盒中的百分比。如果最后一个参数是‘true’，则该四个值是绝对像素位置。
+                  color: new echarts.graphic.LinearGradient(
+                    0,
+                    0,
+                    0,
+                    1,
+                    [
+                      {
+                        offset: 0,
+                        color: "rgba(10,60,240,0.4)",
+                      },
+                      {
+                        offset: 1,
+                        color: "rgba(0,0,0, 0)",
+                      },
+                    ],
+                    false
+                  ),
+                  shadowColor: "rgba(53,142,215, 0.2)", //阴影颜色
+                  shadowBlur: 20, //shadowBlur设图形阴影的模糊大小。配合shadowColor,shadowOffsetX/Y, 设置图形的阴影效果。
+                },
+              },
+              data: time_list,
+            },
+
+          ],
+        };
+
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+          }
+        });
+    }
+
 	function echarts_14() {
         // 基于准备好的dom，初始化echarts实例
         var myChart = echarts.init(document.getElementById('echart14'));
@@ -1424,14 +1628,210 @@ function echarts_13() {
           }
 
         });
-
-
-   // 使用刚指定的配置项和数据显示图表。
-
-        // window.addEventListener("resize",function(){
-        //     myChart.resize();
-        // });
     }
 
+/**
+ * 设置电压值
+ */
+function voltage() {
+  $.ajax({
+    type: "GET",
+    url: "battery/voltage", //后端请求
+    dataType: "json",
+    success: function (res) {
+      var voltage = res['voltage']
+      $('#voltage').text("电池电压: "+voltage);
+      if(voltage<9){
+        $('#battery_state').text("警告： 电池电量过低");
+      }else{
+        $('#battery_state').text("");
+      }
 
+    }
+  });
+}
+
+function current() {
+  $.ajax({
+    type: "GET",
+    url: "battery/current", //后端请求
+    dataType: "json",
+    success: function (res) {
+      var current = res['current'];
+      $('#current').text("电流大小: " + current);
+      if(current>6){
+        $('#battery_state').text("警告： 电流过大");
+      }else{
+        $('#battery_state').text("");
+      }
+    }
+  });
+}
+
+function level() {
+  $.ajax({
+    type: "GET",
+    url: "battery/level", //后端请求
+    dataType: "json",
+    success: function (res) {
+      var level = res['level'];
+      $('#level').text("剩余电量: " + level);
+      //电池的图像，应该显示的百分比
+      var battery_chart = document.getElementById("battery_level");
+      battery_chart.style.setProperty('width',level + '%');
+      if(level<20){
+        $('#battery_state').text("警告： 电量过低");
+      }else{
+        $('#battery_state').text("");
+      }
+    }
+  });
+}
+
+function time_left() {
+  $.ajax({
+    type: "GET",
+    url: "battery/time_left", //后端请求
+    dataType: "json",
+    success: function (res) {
+      var time_str = res['time_str'];
+      $('#time_left').text("续航: " + time_str);
+      //电池的图像，应该显示的百分比
+    }
+  });
+}
+
+/**
+ * 机身平稳性处的报警情况
+ * @type {number}
+ */
+var color_flag = 0;
+function shake_change_color() {
+  var battery_chart = document.getElementById("echart13");
+  var h4_shake = document.getElementById("h4_shake");
+  if(color_flag===0){
+    battery_chart.style.background = "";
+    h4_shake.style.background = "";
+    color_flag = 1;
+  }else{
+     battery_chart.style.background = "red";
+     h4_shake.style.background = "red";
+     color_flag = 0;
+  }
+
+}
+
+function shake_clear() {
+  var battery_chart = document.getElementById("echart13");
+  var h4_shake = document.getElementById("h4_shake");
+  battery_chart.style.background = "";
+  h4_shake.style.background = "";
+}
+
+/**
+ * 连接情况的报警信息处理
+ */
+var connect_state_flag = 1;
+var warning = 0;
+function connect_state() {
+  var connect_state = document.getElementById("connect_state");
+  var echarts_connect_time = document.getElementById("echarts_connect_time");
+  $.ajax({
+    type: "GET",
+    url: "state/ping", //后端请求
+    dataType: "json",
+    success: function (res) {
+      if(res['state']){
+        $('#connect_state').text("连接成功");
+        warning = 0;
+      }else {
+        $('#connect_state').text("错误：连接断开");
+        warning = 1;
+      }
+    }
+  });
+
+  if(warning===0){
+      $.ajax({
+        type: "GET",
+        url: "state/time", //后端请求
+        dataType: "json",
+        success: function (res) {
+          if(res['time'][0]>2&&res['time'][0]<5){
+            $('#connect_state').text("警告：连接延迟严重");
+            warning = 1;
+          }
+        }
+      });
+  }
+  //修改底色，制造出闪烁的效果
+  if(warning===1){
+      if(connect_state_flag===0){
+        connect_state.style.background = "";
+        echarts_connect_time.style.background = "";
+        connect_state_flag = 1;
+      }else{
+         connect_state.style.background = "red";
+         echarts_connect_time.style.background = "red";
+         connect_state_flag = 0;
+      }
+  }else {
+    connect_state.style.background = "";
+    echarts_connect_time.style.background = "";
+  }
+
+}
+
+function log_util(){
+    $.ajax({
+    type: "GET",
+    url: "log/log", //后端请求
+    dataType: "json",
+    success: function (res) {
+      let log_list = res['log'];
+      //这一句非常重要，删除原有的，更新日志输出窗口，达到刷新的效果。
+      $("#log_win").html("");
+      $.each(log_list,function(i,item){
+        // 将后端的数据按照$先分割，获取时间、级别和日志详情
+        var arr = item.split("$");
+        var msg = arr[0];
+        var level = arr[1];
+        var msg_time = arr[2];
+
+        var html = '<li><p>';
+        html += msg_time;
+        switch(level){
+          case "info":
+            html += "<a class=\"text-green\" href=\"#\" data-toggle=\"modal\" data-target=\"#myModal-add\">";
+            break;
+          case "warning":
+            html += "<a class=\"text-yellow\" href=\"#\" data-toggle=\"modal\" data-target=\"#myModal-add\">";
+            break;
+          case "error":
+            html += "<a class=\"text-red\" href=\"#\" data-toggle=\"modal\" data-target=\"#myModal-add\">";
+            break;
+        }
+        html += msg;
+        html +="</a></p></li>";
+        $('#log_win').append(html);
+      });
+    }
+  });
+}
+
+// function connect_GPS() {
+//         $.ajax({
+//         type: "GET",
+//         url: "GPS/gps", //后端请求
+//         dataType: "json",
+//         success: function (res) {
+//             lon = res['lon'];
+//             lat = res['lat'];
+//              var map = new BMapGL.Map('container'); // 创建Map实例
+//              map.centerAndZoom(new BMapGL.Point(lon, lat), 18); // 初始化地图,设置中心点坐标和地图级别
+//              map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+//
+//         }
+//       });
+// }
 

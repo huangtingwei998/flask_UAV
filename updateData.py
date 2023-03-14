@@ -4,6 +4,7 @@ import time
 import numpy
 
 from ClientConnect import client
+from logger import drone_log, log_ui, log_msg
 from mavproxy import vehicle
 
 data = vehicle.velocity
@@ -25,20 +26,19 @@ class dataCenter():
     ygyro_data_list = []
     zgyro_data_list = []
 
-    xvelocity_data_list = []
-    yvelocity_data_list = []
-    zvelocity_data_list = []
-
     shake_amplitude_list = []
 
-    connecttime = 0.0
+    connect_time_list = []
     connectstate = True
+
+"""
+姿态传感器和GPS传感器和激光雷达传感的数据的更新
+"""
 def updata():
     try:
         t1 = time.time()
         client.sendData("ok")
         data = client.getData()
-        dataCenter.connecttime = time.time() - t1
         data = eval(data)
         dataCenter.xaccel_data = data['xaccel_data']
         dataCenter.yaccel_data = data['yaccel_data']
@@ -72,37 +72,29 @@ def updata():
         dataCenter.xgyro_data_list.append(data['xgyro_data'])
 
         if len(dataCenter.ygyro_data_list)>10:
-            dataCenter.xgyro_data_list.pop(0)
-        dataCenter.ygyro_data_list.append(data['ygyro_data'])
+            dataCenter.ygyro_data_list.pop(0)
+        dataCenter.ygyro_data_list.append(data['ygyro_data']/3)
 
         if len(dataCenter.zgyro_data_list)>10:
             dataCenter.zgyro_data_list.pop(0)
         dataCenter.zgyro_data_list.append(data['zgyro_data'])
+
         """
-        速度数据的更新
+        ping时间的数据更新
+        
         """
-        if len(dataCenter.xvelocity_data_list)>10:
-            dataCenter.xvelocity_data_list.pop(0)
-        dataCenter.xvelocity_data_list.append(round(data[0],3))
-
-        if len(dataCenter.yvelocity_data_list)>10:
-            dataCenter.yvelocity_data_list.pop(0)
-        dataCenter.yvelocity_data_list.append(round(data[1],3))
-
-        if len(dataCenter.zvelocity_data_list)>10:
-            dataCenter.zvelocity_data_list.pop(0)
-        dataCenter.zvelocity_data_list.append(round(data[2],3))
-
-        if len(dataCenter.shake_amplitude_list)>20:
-            dataCenter.shake_amplitude_list.pop(0)
+        if len(dataCenter.connect_time_list)>8:
+            dataCenter.connect_time_list.pop(0)
+        dataCenter.connect_time_list.append(round(time.time()-t1, 4))
         """
         震荡幅度的计算
         """
+        if len(dataCenter.shake_amplitude_list)>10:
+            dataCenter.shake_amplitude_list.pop(0)
         all_accel = numpy.square(dataCenter.xaccel_data) + numpy.square(dataCenter.yaccel_data) + numpy.square(dataCenter.zaccel_data)
         all_gyro = numpy.square(dataCenter.xgyro_data) + numpy.square(dataCenter.xgyro_data) + numpy.square(dataCenter.xgyro_data)
         all_attitude = numpy.square(vehicle.attitude.yaw) + numpy.square(vehicle.attitude.roll) + numpy.square(vehicle.attitude.pitch)
-        dataCenter.shake_amplitude_list.append(math.sqrt(all_accel) + math.sqrt(all_gyro) + math.sqrt(all_attitude))
+        dataCenter.shake_amplitude_list.append(round(float(math.sqrt(all_accel) + math.sqrt(all_gyro) + math.sqrt(all_attitude)),1))
 
     except BaseException:
         dataCenter.connectstate = False
-

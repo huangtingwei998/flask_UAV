@@ -1,6 +1,8 @@
 import time
 from socket import *
 
+from logger import drone_log, log_ui, log_msg
+
 
 def help():
     print("         命令：")
@@ -35,4 +37,8 @@ class ClientConnect():
         return data.decode('utf-8')
 
 
-client = ClientConnect()
+try:
+    client = ClientConnect()
+    log_msg("连接无人机成功", "info")
+except Exception:
+    log_msg("连接无人机失败", "error")

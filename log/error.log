@@ -1,0 +1,2 @@
+2022-09-21 22:33:17,958 - ERROR - logger.py[:21] - error message
+2022-09-21 22:33:17,958 - CRITICAL - logger.py[:22] - critical message
